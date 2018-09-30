@@ -1,0 +1,98 @@
+---
+title: "HW5NBartholowMSDS6306"
+author: "Nicole Bartholow"
+date: "9/27/2018"
+output: 
+  html_document:
+      keep_md:  true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+```
+
+
+## Question 1 - Data Munging 
+###a. import the .txt file
+```{r read 2016 file into dataframe df and assign meaningful column names}
+df <- read.delim("/Users/nicolealphin/Desktop/DataScience/MSDS6306-DoingDataScience/HW/LiveSessionAssignment5/yob2016.txt", header=FALSE, sep=";", stringsAsFactors = FALSE, col.names = c("Name", "Gender", "NumberChildrenGivenName"))
+df$Gender <- as.factor(df$Gender)
+```
+
+###b. Display Summary
+```{r display summary and structure of df}
+summary(df)
+str(df)
+```
+
+###c. Find duplicate name
+Remove blank observations, rows and
+Create 2 columns, Actor & Character
+```{r  get row for duplicate name }
+yyy <- grep("yyy", df$Name)
+df[yyy,]
+```
+
+###d. Remove Duplicate Name and Save Dataset Object
+```{r remove duplicate name and save df as new object y2016}
+y2016<-slice(df, -yyy)
+```
+
+## Question 2 - Data Merging
+###a. import the .txt file
+```{r read 2015 file into dataframe df}
+y2015 <- read.csv("/Users/nicolealphin/Desktop/DataScience/MSDS6306-DoingDataScience/HW/LiveSessionAssignment5/yob2015.txt", header=FALSE, stringsAsFactors = TRUE, col.names = c("Name", "Gender", "NumberChildrenGivenName"))
+df$Gender <- as.factor(df$Gender)
+```
+
+###b. Read the last 10 rows of y2015 and comment on anything interesting about the data
+####The last 10 rows of the 2015 dataset are all Male names and each name was bestowed on five children
+####based on the summary stats, a name must have been given to at least 5 children in a year to make the list 
+```{r read tail of df }
+tail(y2015, 10)
+```
+
+###c. Merge 2015 and 2016 by Name
+```{r merge dataframes by Name columns}
+#HW says to merge by Name column
+final <- merge(y2016, y2015, by="Name")
+#I prefer to merge by Name AND Gender for the next exercise
+final <- merge(y2016, y2015, by.x=c("Name","Gender"), by.y =c("Name","Gender"))
+```
+
+## Question 3 - Data Summary 
+###a. Create Total column for the total number of children of each name in both years combined
+```{r create Total column}
+final$Total <- final$NumberChildrenGivenName.x + final$NumberChildrenGivenName.y
+```
+
+###b. Display 10 Most Popular
+```{r display most popular names for both genders}
+final <- final[order(final$Total, decreasing = TRUE),]
+TopTen <- head(final, 10)
+TopTen
+```
+
+###c. Display 10 Most Popular Girls Names
+```{r create new table of girls names and clean }
+#This total is the total number of Females named these names over a two year period.  There are also boys assigned these names, but that does not change the popularity
+GirlsFinal <- final[final$Gender == "F",]
+GirlsFinal <- data.frame(GirlsFinal$Name, GirlsFinal$Total)
+TopTen <- head(GirlsFinal, 10)
+TopTen
+```
+
+###d. Save Girls Names and Totals to TopTenGirls csv file
+```{r write top ten girls names to csv}
+write.csv(TopTen, "TopTenGirls.csv")
+```
+
+## Question 4 - Upload to Github 
+###a. Push at minimum your RMarkdown for this homework assignment and a Codebook to one of your GitHub repositories (you might place this in a Homework repo like last week).  The Codebook should contain a short definition of each object you create, and if creating multiple files, which file it is contained in.  You are welcome and encouraged to add other files—just make sure you have a description and directions that are helpful for the grader.
+### I looked up several codebooks, and wasn't sure if I should also describe the input files, the intermediate objects, etc. I appreciate any and all feedback!
+
+###https://github.com/NicoleABartholow/MSDS6306HW/upload/master
+
+
+
